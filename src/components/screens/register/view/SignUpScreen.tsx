@@ -6,7 +6,6 @@ import { defaultAuthenRepo } from "@/api/features/authenticate/AuthenRepo";
 const SignUp = () => {
     const {isLoading, handleSignUp} = SignUpViewModel(defaultAuthenRepo);
     const onFinish = async (values: any) => {
-        console.log("Received values of form: ", values);
         const data = {
             name: values.Name,
             email: values.email,

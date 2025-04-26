@@ -31,9 +31,8 @@ const SignUpViewModel = (repo: AuthenRepo) => {
                     message.error("Email đã tồn tại!");
                 }
                 if(response.error.code === 500) {
-                    message.error("Đã xảy ra lỗi trong quá trình đăng ký!");
+                message.error("Đăng ký thất bại, thử lại sau!");
                 }
-                message.error("Đăng ký thất bại!");
             }
             return response;
         } catch (error) {
