@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import books from "../bookData";
-import { BookModel } from "@/api/features/authenticate/book/BookModel";
+import { BookModel } from "@/api/features/book/model/BookModel";
 import CartItem from "./component/cartItems";
 import { Button } from "antd";
 

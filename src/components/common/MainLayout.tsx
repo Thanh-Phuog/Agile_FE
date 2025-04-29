@@ -30,8 +30,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const screens = useBreakpoint();
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
-  const { user, onLogout } = useAuth(); 
-console.log("user", user);
+  const { user, onLogout } = useAuth();  
 
   const isActived = (link: string) => {
     const [basePath, queryString] = link.split("?");
