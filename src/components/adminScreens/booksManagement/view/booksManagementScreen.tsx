@@ -28,9 +28,12 @@ const BooksManagementScreen = () => {
     handleCategoryCancel,
     handleAddOrUpdateCategory,
     handleDeleteCategory,
+    currentPage,
+    pageSize,
+    totalCategories,
+    handlePageChange,
   } = useBooksManagementViewModel(form);
 
-  // Define tab items for the Tabs component
   const tabItems = [
     {
       key: 'books',
@@ -62,9 +65,13 @@ const BooksManagementScreen = () => {
           <CategoriesTable
             categories={categories}
             loading={loadingCategories}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalCategories={totalCategories}
             showAddCategoryModal={showAddCategoryModal}
             showEditCategoryModal={showEditCategoryModal}
             handleDeleteCategory={handleDeleteCategory}
+            onPageChange={handlePageChange}
           />
         </>
       ),

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { message } from 'antd';
 import type { FormInstance } from 'antd';
 import type { UploadFile } from 'antd/es/upload';
-import { CategoryRepo } from '@/api/features/category/CategoryRepo'; 
-import { CategoryModel } from '@/api/features/category/model/CategoryModel'; 
+import { CategoryRepo } from '@/api/features/category/CategoryRepo';
+import { CategoryModel } from '@/api/features/category/model/CategoryModel';
 
 export interface Book {
   id: string;
@@ -40,8 +40,43 @@ const useBooksManagementViewModel = (form: FormInstance) => {
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryModel | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalCategories, setTotalCategories] = useState(0);  
 
   const categoryRepo = new CategoryRepo();
+
+  const fetchCategories = async (page = 1, limit = pageSize) => {
+    setLoadingCategories(true);
+    try {
+      const response = await categoryRepo.getList({ page, limit });
+      const fetchedCategories = Array.isArray(response.data)
+        ? response.data.map((category) => ({
+            id: category.id || '',
+            name: category.name || '',
+            description: category.description || '',
+            createdAt: category.createdAt || '',
+            updatedAt: category.updatedAt || '',
+          }))
+        : [];
+      setCategories(fetchedCategories);
+      setCurrentPage(page);
+      setTotalCategories(response.paging.total || 0);  
+    } catch (error) {
+      message.error('Không thể tải danh sách danh mục!');
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const handlePageChange = (page: number, newPageSize: number) => {
+    if (page > 0) {
+      if (newPageSize !== pageSize) {
+        setPageSize(newPageSize);  
+      }
+      fetchCategories(page, newPageSize);
+    }
+  };
 
   const showAddBookModal = () => {
     setEditingBook(null);
@@ -98,40 +133,6 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     message.success('Xóa sách thành công!');
   };
 
-  const fetchCategories = async () => {
-    setLoadingCategories(true);
-    try {
-      const response = await categoryRepo.getAll();
-      setCategories(
-        Array.isArray(response.data)
-          ? response.data.map((category) => ({
-              ...category,
-              name: category.name || '',
-              description: category.description || '',
-            }))
-          : [{
-              ...response.data,
-              name: response.data.name || '',
-              description: response.data.description || '',
-            }]
-      );
-    } catch (error) {
-      message.error('Không thể tải danh sách danh mục!');
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
-  const getCategoryDetails = async (id: string) => {
-    try {
-      const response = await categoryRepo.getById(id);
-      return response.data;
-    } catch (error) {
-      message.error('Không thể lấy chi tiết danh mục!');
-      throw error;
-    }
-  };
-
   const showAddCategoryModal = () => {
     setEditingCategory(null);
     form.resetFields();
@@ -142,9 +143,11 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     try {
       const response = await categoryRepo.getById(category.id!);
       const categoryDetails = {
-        ...response.data,
+        id: response.data.id || '',
         name: response.data.name || '',
         description: response.data.description || '',
+        createdAt: response.data.createdAt || '',
+        updatedAt: response.data.updatedAt || '',
       };
       setEditingCategory(categoryDetails);
       form.setFieldsValue(categoryDetails);
@@ -152,9 +155,11 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     } catch (error) {
       message.error('Không thể lấy chi tiết danh mục, sử dụng dữ liệu hiện tại.');
       const fallbackCategory = {
-        ...category,
+        id: category.id || '',
         name: category.name || '',
         description: category.description || '',
+        createdAt: category.createdAt || '',
+        updatedAt: category.updatedAt || '',
       };
       setEditingCategory(fallbackCategory);
       form.setFieldsValue(fallbackCategory);
@@ -182,10 +187,11 @@ const useBooksManagementViewModel = (form: FormInstance) => {
         await categoryRepo.create(payload);
         message.success('Thêm danh mục mới thành công!');
       }
-      fetchCategories();
-      handleCategoryCancel();
+      fetchCategories(currentPage, pageSize); 
     } catch (error) {
       message.error('Không thể lưu danh mục!');
+    } finally {
+      handleCategoryCancel();  
     }
   };
 
@@ -193,14 +199,14 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     try {
       await categoryRepo.delete(id);
       message.success('Xóa danh mục thành công!');
-      fetchCategories();
+      fetchCategories(currentPage, pageSize);
     } catch (error) {
       message.error('Không thể xóa danh mục!');
     }
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategories(currentPage, pageSize);
   }, []);
 
   return {
@@ -221,7 +227,10 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     handleCategoryCancel,
     handleAddOrUpdateCategory,
     handleDeleteCategory,
-    getCategoryDetails,
+    currentPage,
+    pageSize,
+    totalCategories,  
+    handlePageChange,
   };
 };
 
