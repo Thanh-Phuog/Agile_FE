@@ -83,10 +83,15 @@ class AxiosClient implements IApiClient {
 
   async patch<T extends Object>(
     path: string,
-    data: Map<string, any> | any = {},
-    config?: Map<string, any> | any
+    data: Map<string, any> | any
   ): Promise<BaseApiResponseModel<T>> {
-    let response = await api.patch(path, data, config);
+    return this.put(path, data);
+  }
+  async put<T extends Object>(
+    path: string,
+    data: Map<string, any> | any
+  ): Promise<BaseApiResponseModel<T>> {
+    let response = await api.put(path, data);
     return ModelConverter.decode(response, BaseApiResponseModel<T>);
   }
 }

@@ -2,7 +2,7 @@
 
 import { Card, Button, message } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { BookModel } from "@/api/features/authenticate/book/BookModel";
+import { BookModel } from "@/api/features/book/model/BookModel";
 import { useAuth } from "@/context/auth/useAuth";
 import { useRouter } from "next/navigation";
 

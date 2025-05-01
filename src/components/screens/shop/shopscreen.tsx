@@ -1,6 +1,6 @@
 "use client";
 
-import { BookModel } from "@/api/features/authenticate/book/BookModel";
+import { BookModel } from "@/api/features/book/model/BookModel";
 import ProductBook from "@/components/common/product";
 import books from "../bookData";
 import SwiperBannerCard from "./component/swiperBanner";

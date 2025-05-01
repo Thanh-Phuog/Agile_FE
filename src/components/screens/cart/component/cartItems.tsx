@@ -1,6 +1,6 @@
 import { Button, InputNumber } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { BookModel } from "@/api/features/authenticate/book/BookModel";
+import { BookModel } from "@/api/features/book/model/BookModel";
 
 interface CartItemProps {
   item: BookModel & { quantity: number };

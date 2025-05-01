@@ -1,4 +1,4 @@
-import { BookModel } from "@/api/features/authenticate/book/BookModel";
+import { BookModel } from "@/api/features/book/model/BookModel";
 
 const books: BookModel[] = [
     {
