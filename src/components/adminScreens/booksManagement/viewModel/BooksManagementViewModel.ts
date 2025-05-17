@@ -4,38 +4,15 @@ import type { FormInstance } from 'antd';
 import type { UploadFile } from 'antd/es/upload';
 import { CategoryRepo } from '@/api/features/category/CategoryRepo';
 import { CategoryModel } from '@/api/features/category/model/CategoryModel';
+import books from '@/components/bookData';
+import { BookModel } from '@/api/features/book/model/BookModel';
 
-export interface Book {
-  id: string;
-  title: string;
-  author: string;
-  price: number;
-  description: string;
-  thumbnailUrl: string;
-  additionalImageUrls: string[];
-  categories: string[];
-}
 
-const initialMockBooks: Book[] = [
-  {
-    id: '1',
-    title: 'Lập trình Agile với Scrum',
-    author: 'Ken Schwaber',
-    price: 250000,
-    description: 'Một cuốn sách hướng dẫn về phương pháp phát triển phần mềm Agile Scrum.',
-    thumbnailUrl: 'https://via.placeholder.com/150/0000FF/808080?text=Thumbnail+1',
-    additionalImageUrls: [
-      'https://via.placeholder.com/100/FF0000/FFFFFF?text=Add+1.1',
-      'https://via.placeholder.com/100/FFFF00/000000?text=Add+1.2',
-    ],
-    categories: ['Agile', 'Scrum'],
-  },
-];
 
 const useBooksManagementViewModel = (form: FormInstance) => {
-  const [books, setBooks] = useState<Book[]>(initialMockBooks);
+  const [book, setBook] = useState<BookModel[]>(books);
   const [isBookModalVisible, setIsBookModalVisible] = useState(false);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [editingBook, setEditingBook] = useState<BookModel | null>(null);
   const [categories, setCategories] = useState<CategoryModel[]>([]);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryModel | null>(null);
@@ -84,13 +61,13 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     setIsBookModalVisible(true);
   };
 
-  const showEditBookModal = (book: Book) => {
+  const showEditBookModal = (book: BookModel) => {
     setEditingBook(book);
     form.setFieldsValue({
       ...book,
       thumbnail: [],
       additionalImages: [],
-      categories: book.categories || [],
+      categories: book.category || [],
     });
     setIsBookModalVisible(true);
   };
@@ -102,8 +79,8 @@ const useBooksManagementViewModel = (form: FormInstance) => {
   };
 
   const handleAddOrUpdateBook = (values: any) => {
-    const thumbnailUrl = values.thumbnail?.[0]?.thumbUrl || editingBook?.thumbnailUrl || '';
-    const additionalImageUrls = values.additionalImages?.map((file: UploadFile) => file.thumbUrl) || editingBook?.additionalImageUrls || [];
+    const thumbnailUrl = values.thumbnail?.[0]?.thumbUrl || editingBook?.images || '';
+    const additionalImageUrls = values.additionalImages?.map((file: UploadFile) => file.thumbUrl) || editingBook?.images || [];
     const categories = values.categories || [];
 
     if (editingBook) {
@@ -112,24 +89,24 @@ const useBooksManagementViewModel = (form: FormInstance) => {
           ? { ...editingBook, ...values, thumbnailUrl, additionalImageUrls, categories }
           : book
       );
-      setBooks(updatedBooks);
+      setBook(updatedBooks);
       message.success('Cập nhật sách thành công!');
     } else {
-      const newBook: Book = {
+      const newBook: BookModel = {
         id: Date.now().toString(),
         ...values,
         thumbnailUrl,
         additionalImageUrls,
         categories,
       };
-      setBooks([newBook, ...books]);
+      setBook([newBook, ...books]);
       message.success('Thêm sách mới thành công!');
     }
     handleBookCancel();
   };
 
   const handleDeleteBook = (id: string) => {
-    setBooks(books.filter((book) => book.id !== id));
+    setBook(books.filter((book) => book.id !== id));
     message.success('Xóa sách thành công!');
   };
 

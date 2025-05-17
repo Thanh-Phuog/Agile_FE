@@ -2,33 +2,38 @@ import React from 'react';
 import { Table, Button, Space, Image, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import type { Book } from '../viewModel/BooksManagementViewModel';
+import type { BookModel } from '@/api/features/book/model/BookModel';
+import books from '@/components/bookData';
 
 interface BooksTableProps {
-  books: Book[];
   showAddBookModal: () => void;
-  showEditBookModal: (book: Book) => void;
+  showEditBookModal: (book: BookModel) => void;
   handleDeleteBook: (id: string) => void;
 }
 
 const BooksTable: React.FC<BooksTableProps> = ({
-  books,
   showAddBookModal,
   showEditBookModal,
   handleDeleteBook,
 }) => {
-  const bookColumns: ColumnsType<Book> = [
+  const [book, setBook] = React.useState<BookModel[]>(books)
+  const columns: ColumnsType<BookModel> = [
     {
-      title: 'Thumbnail',
-      dataIndex: 'thumbnailUrl',
-      key: 'thumbnailUrl',
-      render: (url: string) => <Image width={50} src={url} alt="Thumbnail" />,
+      title: 'Ảnh bìa',
+      dataIndex: 'images',
+      key: 'images',
+      render: (images: string[]) =>
+        images?.length > 0 ? (
+          <Image width={50} src={images[0]} alt="Book Thumbnail" />
+        ) : (
+          <span>Không có ảnh</span>
+        ),
     },
     {
       title: 'Tên sách',
-      dataIndex: 'title',
-      key: 'title',
-      sorter: (a, b) => a.title.localeCompare(b.title),
+      dataIndex: 'name',
+      key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Tác giả',
@@ -38,20 +43,39 @@ const BooksTable: React.FC<BooksTableProps> = ({
     },
     {
       title: 'Danh mục',
-      dataIndex: 'categories',
-      key: 'categories',
-      render: (categories: string[] | undefined) =>
-        categories && categories.length > 0 ? (
-          categories.map((cat) => <Tag color="blue" key={cat}>{cat}</Tag>)
-        ) : (
-          <span>Không có danh mục</span>
-        ),
+      dataIndex: 'category',
+      key: 'category',
+      render: (cat: string) => <Tag color="blue">#{cat}</Tag>, // Bạn có thể map sang tên danh mục nếu có
     },
+    // {
+    //   title: 'Mô tả',
+    //   dataIndex: 'description',
+    //   key: 'description',
+    //   ellipsis: true,
+    // },
     {
       title: 'Giá',
       dataIndex: 'price',
       key: 'price',
-      render: (price: number) => price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+      render: (price: number) =>
+        price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+    },
+    {
+      title: 'Tồn kho',
+      dataIndex: 'totalAmount',
+      key: 'totalAmount',
+    },
+    {
+      title: 'Đã bán',
+      dataIndex: 'soldAmount',
+      key: 'soldAmount',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: boolean) =>
+        status ? <Tag color="green">Còn bán</Tag> : <Tag color="red">Ngừng bán</Tag>,
     },
     {
       title: 'Hành động',
@@ -84,7 +108,7 @@ const BooksTable: React.FC<BooksTableProps> = ({
         </Button>
       </div>
       <Table
-        columns={bookColumns}
+        columns={columns}
         dataSource={books}
         rowKey="id"
         bordered

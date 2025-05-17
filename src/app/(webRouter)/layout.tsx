@@ -1,6 +1,6 @@
 "use client";
 import { ApiPath } from "@/api/ApiPath";
-import MainLayout from "@/components/common/MainLayout";
+import MainLayout from "@/components/common/MainLayout/MainLayout";
 import { useAuth } from "@/context/auth/useAuth";
 import { Button, message, notification, Skeleton } from "antd";
 import { Suspense, useEffect, useState } from "react";
