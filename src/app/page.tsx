@@ -9,12 +9,8 @@ const Page = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) {
       router.push("/home");
-    } else {
-      router.push("/login");
-    }
-  }, [isAuthenticated, router]);
+  }, [router]);
 
   return (
     <div className="w-screen h-screen flex justify-center items-center bg-white">
