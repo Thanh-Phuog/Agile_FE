@@ -13,7 +13,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Get from async storage
-    const token = localStorage.getItem('accesstoken');
+    const token = localStorage.getItem('accessToken');
     // for ngrok
     if (config?.url?.includes("ngrok-free.app")) {
       config.headers!["ngrok-skip-browser-warning"] = "69420";
@@ -42,7 +42,7 @@ api.interceptors.response.use(
         title: "Session expired",
         content: "Your session has expired. Please log in again.",
         onOk() {
-          localStorage.removeItem("accesstoken");
+          localStorage.removeItem("accessToken");
           window.location.href = "/login";
         },
       });

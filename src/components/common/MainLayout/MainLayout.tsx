@@ -66,13 +66,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       }}>Đăng xuất</span>,
     },
   ];
-  //   const handleLogout = () => {
-  //     onLogout();
-  //     setLogoutModal(false);
-  //     router.push("/login");
-  //   };
-
-  // Define the header navigation items
+ 
   const headerNavItems = [
     { label: `Trang chủ`, link: "/home" },
     { label: `Cửa hàng`, link: "/shop" },
@@ -85,7 +79,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       : []),
 
       ...(user && user.role === "admin"
-        ? [{ label: `Quản lý`, link: "/admin" }]
+        ? [{ label: `Quản lý`, link: "/admin/booksManagement" }]
         : []),
   ];
 
@@ -181,7 +175,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             width: "100%",
             zIndex: 100,
             padding: 0,
-          }}>      <div
+          }}>      
+          <div
             style={{
               display: "flex",
               alignItems: "center",

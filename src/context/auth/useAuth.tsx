@@ -55,7 +55,7 @@ class AuthManager {
 
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem("user", JSON.stringify(user.data.user));
-      localStorage.setItem("accesstoken", user.data.accessToken);
+      localStorage.setItem("accessToken", user.data.accessToken);
     }
 
     this.isAuthenticated = true;
@@ -67,7 +67,7 @@ class AuthManager {
   public onSignUp(user: any) {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem("user", JSON.stringify(user.data.user));
-      localStorage.setItem("accesstoken", user.data.accessToken);
+      localStorage.setItem("accessToken", user.data.accessToken);
     }
 
     this.isAuthenticated = true;
@@ -90,7 +90,7 @@ class AuthManager {
   public async onLogout() {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem("user");
-      localStorage.removeItem("accesstoken");
+      localStorage.removeItem("accessToken");
 
     }
     this.isAuthenticated = false;
@@ -106,7 +106,7 @@ class AuthManager {
   public checkAuthStatus() {
     if (typeof window !== 'undefined' && window.localStorage) {
       const storedUser = localStorage.getItem("user");
-      const storedAccessToken = localStorage.getItem("accesstoken");
+      const storedAccessToken = localStorage.getItem("accessToken");
 
       try {
         if (storedUser && storedAccessToken) {

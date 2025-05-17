@@ -1,9 +1,10 @@
 "use client";
 
 import { BookModel } from "@/api/features/book/model/BookModel";
-import ProductBook from "@/components/common/product";
-import books from "../bookData";
+
+import books from "../../bookData";
 import SwiperBannerCard from "./component/swiperBanner";
+import ProductBook from "@/components/common/book/book";
   
 
 const ShopScreen = () => {

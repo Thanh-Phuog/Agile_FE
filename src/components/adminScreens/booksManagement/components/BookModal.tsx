@@ -1,33 +1,32 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Select, Upload, Button, Space } from 'antd';
+import { Modal, Form, Input, InputNumber, Select, Upload, Button, Space, Switch } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd';
-import type { Book, Category } from '../viewModel/BooksManagementViewModel';
+import { BookModel } from '@/api/features/book/model/BookModel';
+import useCategoryManagementViewModel from '../../categoryManagement/viewModel/CategoryManagamentViewModel';
 
 interface BookModalProps {
   form: FormInstance;
-  categories: Category[];
   isBookModalVisible: boolean;
-  editingBook: Book | null;
+  editingBook: BookModel | null;
   handleBookCancel: () => void;
   handleAddOrUpdateBook: (values: any) => void;
 }
 
 const BookModal: React.FC<BookModalProps> = ({
   form,
-  categories,
   isBookModalVisible,
   editingBook,
   handleBookCancel,
   handleAddOrUpdateBook,
 }) => {
+  const {categories, handlePageChange} = useCategoryManagementViewModel(form);
   useEffect(() => {
     if (editingBook) {
       form.setFieldsValue({
         ...editingBook,
-        thumbnail: [],
-        additionalImages: [],
-        categories: editingBook.categories || [],
+        status: editingBook.status ?? true,
+        images: [], // Images should be handled manually when editing
       });
     } else {
       form.resetFields();
@@ -56,11 +55,13 @@ const BookModal: React.FC<BookModalProps> = ({
         onFinish={handleAddOrUpdateBook}
         initialValues={{
           price: 0,
-          categories: [],
+          totalAmount: 0,
+          soldAmount: 0,
+          status: true,
         }}
       >
         <Form.Item
-          name="title"
+          name="name"
           label="Tên sách"
           rules={[{ required: true, message: 'Vui lòng nhập tên sách!' }]}
         >
@@ -74,11 +75,11 @@ const BookModal: React.FC<BookModalProps> = ({
           <Input />
         </Form.Item>
         <Form.Item
-          name="categories"
+          name="category"
           label="Danh mục"
-          rules={[{ required: true, message: 'Vui lòng chọn ít nhất một danh mục!' }]}
+          rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
         >
-          <Select mode="multiple" placeholder="Chọn danh mục">
+          <Select placeholder="Chọn danh mục">
             {categories.map((cat) => (
               <Select.Option key={cat.id} value={cat.name}>
                 {cat.name}
@@ -95,7 +96,7 @@ const BookModal: React.FC<BookModalProps> = ({
             min={0}
             style={{ width: '100%' }}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+            parser={(value) => value!.replace(/(,*)/g, '')}
           />
         </Form.Item>
         <Form.Item
@@ -106,26 +107,34 @@ const BookModal: React.FC<BookModalProps> = ({
           <Input.TextArea rows={4} />
         </Form.Item>
         <Form.Item
-          name="thumbnail"
-          label="Ảnh Thumbnail"
-          valuePropName="fileList"
-          getValueFromEvent={normFile}
-          rules={[{ required: !editingBook, message: 'Vui lòng tải lên ảnh thumbnail!' }]}
+          name="totalAmount"
+          label="Tồn kho"
+          rules={[{ required: true, message: 'Vui lòng nhập số lượng tồn!' }]}
         >
-          <Upload listType="picture-card" maxCount={1} beforeUpload={() => false}>
-            <div>
-              <UploadOutlined />
-              <div style={{ marginTop: 8 }}>Tải lên</div>
-            </div>
-          </Upload>
+          <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item
-          name="additionalImages"
-          label="Ảnh phụ (Tối đa 4 ảnh)"
+          name="soldAmount"
+          label="Đã bán"
+          rules={[{ required: true, message: 'Vui lòng nhập số lượng đã bán!' }]}
+        >
+          <InputNumber min={0} style={{ width: '100%' }} />
+        </Form.Item>
+        <Form.Item
+          name="status"
+          label="Trạng thái"
+          valuePropName="checked"
+        >
+          <Switch checkedChildren="Còn bán" unCheckedChildren="Ngừng bán" />
+        </Form.Item>
+        <Form.Item
+          name="images"
+          label="Ảnh sách (Thumbnail & ảnh phụ)"
           valuePropName="fileList"
           getValueFromEvent={normFile}
+          rules={[{ required: !editingBook, message: 'Vui lòng tải lên ít nhất 1 ảnh!' }]}
         >
-          <Upload listType="picture-card" maxCount={4} multiple beforeUpload={() => false}>
+          <Upload listType="picture-card" multiple maxCount={5} beforeUpload={() => false}>
             <div>
               <UploadOutlined />
               <div style={{ marginTop: 8 }}>Tải lên</div>

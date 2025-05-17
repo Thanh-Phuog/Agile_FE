@@ -2,9 +2,9 @@
 
 import { Card, Button, message } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { BookModel } from "@/api/features/book/model/BookModel";
 import { useAuth } from "@/context/auth/useAuth";
 import { useRouter } from "next/navigation";
+import { BookModel } from "@/api/features/book/model/BookModel";
 
 const { Meta } = Card;
 
@@ -35,17 +35,24 @@ const ProductBook = ({ product }: Props) => {
         hoverable
         cover={
           <img
-            alt={product.title}
-            src={product.imageUrl}
+            alt={product.name}
+            src={product.images[0]}
             className="h-full w-64 object-cover rounded-t-lg"
           />
         }
         className="rounded-2xl shadow-md"
       >
+        <div onClick={
+          () => {
+            router.push(`/bookDetail?bookId=${product.id}`);
+          }
+        }>
+
         <Meta
-          title={<h2 className="text-xl font-semibold">{product.title}</h2>}
+          title={<h2 className="text-xl font-semibold">{product.name}</h2>}
 
         />
+        </div>
         <div className="flex items-center justify-between mt-4">
           <span className="text-lg font-bold text-indigo-600">${product.price}</span>
           <Button 
