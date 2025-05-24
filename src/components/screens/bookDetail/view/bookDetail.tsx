@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
-import { Row, Col, Typography, Tag, Button, Image, Divider, Space } from 'antd';
-import books from '@/components/bookData';
+import { Row, Col, Typography, Tag, Button, Image, Divider, Space, Form, message } from 'antd';
 import { Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperClass } from 'swiper';
+import useBooksManagementViewModel from '@/components/adminScreens/booksManagement/viewModel/BooksManagementViewModel';
+import { useAuth } from '@/context/auth/useAuth';
+import { useRouter } from 'next/navigation';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -11,25 +13,38 @@ interface BookDetailProps {
   bookId?: string;
 }
 const BookDetail: React.FC<BookDetailProps> = ({ bookId }) => {
-  const book = books.find((b) => b.id === bookId);
+  const [form] = Form.useForm();
+  const {book} = useBooksManagementViewModel(form);
+  const books = book.find((b) => b.id === bookId);
   const swiperRef = useRef<SwiperClass | null>(null);
+  const {user} = useAuth();
+  const router = useRouter();
 
-  if (!book) {
+  if (!books) {
     return <div>Không tìm thấy sách</div>;
   }
+  const { name, author, description, price, totalAmount, soldAmount, status, category, images, id } = books;
 
-  const {
-    name,
-    id,
-    author,
-    price,
-    category,
-    description,
-    status,
-    images,
-    totalAmount,
-    soldAmount,
-  } = book;
+  const addToCart = () => {
+  if (!user) {
+    router.push("/login");
+    message.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
+  } else {
+    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    const index = existingCart.findIndex((item: any) => item.id === id);
+
+    if (index !== -1) {
+      existingCart[index].quantity += 1;
+    } else {
+      existingCart.push({ ...books, quantity: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(existingCart));
+    message.success("Sách đã được thêm vào giỏ hàng!");
+  }
+};
+
 
   return (
     <div className='xl:px-32 px-5 pt-5'>
@@ -102,7 +117,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ bookId }) => {
     <Divider />
 
     <Title level={4} type="danger">
-      Giá: {price.toLocaleString()} đ
+     Giá: {price.toLocaleString('vi-VN')} đ
+
     </Title>
     <Text>
       Số lượng còn lại: {totalAmount - soldAmount} / {totalAmount}
@@ -118,14 +134,15 @@ const BookDetail: React.FC<BookDetailProps> = ({ bookId }) => {
     </Text>
     <br />
     <Text>
-      Danh mục: <Tag color="blue">{category}</Tag>
+      Danh mục: <Tag color="blue">{category?.name}</Tag>
     </Text>
 
     <Divider />
 
-    <Button type="primary" disabled={!status}>
-      {status ? 'Thêm vào giỏ hàng' : 'Hết hàng'}
-    </Button>
+   <Button type="primary" disabled={!status} onClick={addToCart}>
+  {status ? 'Thêm vào giỏ hàng' : 'Hết hàng'}
+</Button>
+
   </Col>
 </Row>
 

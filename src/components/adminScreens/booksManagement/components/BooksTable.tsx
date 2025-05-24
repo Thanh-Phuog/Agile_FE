@@ -1,22 +1,26 @@
 import React from 'react';
-import { Table, Button, Space, Image, Tag, Popconfirm } from 'antd';
+import { Table, Button, Space, Image, Tag, Popconfirm, Form } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { BookModel } from '@/api/features/book/model/BookModel';
-import books from '@/components/bookData';
+import useBooksManagementViewModel from '../viewModel/BooksManagementViewModel';
+import { CategoryModel } from '@/api/features/category/model/CategoryModel';
 
 interface BooksTableProps {
+  book: BookModel[];
   showAddBookModal: () => void;
   showEditBookModal: (book: BookModel) => void;
   handleDeleteBook: (id: string) => void;
 }
 
 const BooksTable: React.FC<BooksTableProps> = ({
+  book,
   showAddBookModal,
   showEditBookModal,
   handleDeleteBook,
 }) => {
-  const [book, setBook] = React.useState<BookModel[]>(books)
+  console.log("books", book);
+  
   const columns: ColumnsType<BookModel> = [
     {
       title: 'Ảnh bìa',
@@ -45,7 +49,7 @@ const BooksTable: React.FC<BooksTableProps> = ({
       title: 'Danh mục',
       dataIndex: 'category',
       key: 'category',
-      render: (cat: string) => <Tag color="blue">#{cat}</Tag>, // Bạn có thể map sang tên danh mục nếu có
+      render: (cat: CategoryModel) => <Tag color="blue">#{cat.name}</Tag>, // Bạn có thể map sang tên danh mục nếu có
     },
     // {
     //   title: 'Mô tả',
@@ -109,7 +113,7 @@ const BooksTable: React.FC<BooksTableProps> = ({
       </div>
       <Table
         columns={columns}
-        dataSource={books}
+        dataSource={book}
         rowKey="id"
         bordered
         pagination={{ pageSize: 5 }}
