@@ -4,13 +4,13 @@ import type { FormInstance } from 'antd';
 import type { UploadFile } from 'antd/es/upload';
 import { CategoryRepo } from '@/api/features/category/CategoryRepo';
 import { CategoryModel } from '@/api/features/category/model/CategoryModel';
-import books from '@/components/bookData';
-import { BookModel } from '@/api/features/book/model/BookModel';
+import { BookModel, BookModelRequest } from '@/api/features/book/model/BookModel';
+import { BookRepo } from '@/api/features/book/BookRepo';
 
 
 
 const useBooksManagementViewModel = (form: FormInstance) => {
-  const [book, setBook] = useState<BookModel[]>(books);
+  const [book, setBook] = useState<BookModel[]>([]);
   const [isBookModalVisible, setIsBookModalVisible] = useState(false);
   const [editingBook, setEditingBook] = useState<BookModel | null>(null);
   const [categories, setCategories] = useState<CategoryModel[]>([]);
@@ -20,27 +20,20 @@ const useBooksManagementViewModel = (form: FormInstance) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalCategories, setTotalCategories] = useState(0);  
+  const [loadingBooks, setLoadingBooks] = useState(false);
 
-  const categoryRepo = new CategoryRepo();
+  const bookRepo = new BookRepo();
 
-  const fetchCategories = async (page = 1, limit = pageSize) => {
-    setLoadingCategories(true);
+  const fetchBook = async (page = 1, limit = pageSize) => {
+    setLoadingBooks(true);
     try {
-      const response = await categoryRepo.getList({ page, limit });
-      const fetchedCategories = Array.isArray(response.data)
-        ? response.data.map((category) => ({
-            id: category.id || '',
-            name: category.name || '',
-            description: category.description || '',
-            createdAt: category.createdAt || '',
-            updatedAt: category.updatedAt || '',
-          }))
-        : [];
-      setCategories(fetchedCategories);
+      const response = await bookRepo.getList({ page, limit });
+      const fetchedBooks = response.data || [];
+      setBook(fetchedBooks); 
       setCurrentPage(page);
       setTotalCategories(response.paging.total || 0);  
     } catch (error) {
-      message.error('Không thể tải danh sách danh mục!');
+      message.error('Không thể tải danh sách quyển sách !');
     } finally {
       setLoadingCategories(false);
     }
@@ -51,7 +44,7 @@ const useBooksManagementViewModel = (form: FormInstance) => {
       if (newPageSize !== pageSize) {
         setPageSize(newPageSize);  
       }
-      fetchCategories(page, newPageSize);
+      fetchBook(page, newPageSize);
     }
   };
 
@@ -78,116 +71,57 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     form.resetFields();
   };
 
-  const handleAddOrUpdateBook = (values: any) => {
-    const thumbnailUrl = values.thumbnail?.[0]?.thumbUrl || editingBook?.images || '';
-    const additionalImageUrls = values.additionalImages?.map((file: UploadFile) => file.thumbUrl) || editingBook?.images || [];
-    const categories = values.categories || [];
+const handleAddOrUpdateBook = (values: any) => {
+  try {
+    console.log('values', values);
+
+    // Lấy originFileObj từ fileList
+    const imageFiles = values.images?.map((file: any) => file.originFileObj).filter(Boolean) || [];
+
+    const data: BookModelRequest = {
+      name: values.name,
+      author: values.author,
+      price: values.price,
+      categoryId: values.category,
+      description: values.description,
+      images: imageFiles,
+      totalAmount: values.totalAmount,
+      status: values.status,
+    };
 
     if (editingBook) {
-      const updatedBooks = books.map((book) =>
-        book.id === editingBook.id
-          ? { ...editingBook, ...values, thumbnailUrl, additionalImageUrls, categories }
-          : book
-      );
-      setBook(updatedBooks);
+      bookRepo.update(editingBook.id, data);
       message.success('Cập nhật sách thành công!');
     } else {
-      const newBook: BookModel = {
-        id: Date.now().toString(),
-        ...values,
-        thumbnailUrl,
-        additionalImageUrls,
-        categories,
-      };
-      setBook([newBook, ...books]);
-      message.success('Thêm sách mới thành công!');
+      bookRepo.create(data);
+      message.success('Thêm sách thành công!');
     }
-    handleBookCancel();
-  };
 
-  const handleDeleteBook = (id: string) => {
-    setBook(books.filter((book) => book.id !== id));
-    message.success('Xóa sách thành công!');
-  };
+    fetchBook(currentPage, pageSize);
+  } catch (error) {
+    console.error(error);
+    message.error('Không thể thêm hoặc cập nhật sách!');
+  }
+};
 
-  const showAddCategoryModal = () => {
-    setEditingCategory(null);
-    form.resetFields();
-    setIsCategoryModalVisible(true);
-  };
 
-  const showEditCategoryModal = async (category: CategoryModel) => {
+  const handleDeleteBook = async(id: string) => {
     try {
-      const response = await categoryRepo.getById(category.id!);
-      const categoryDetails = {
-        id: response.data.id || '',
-        name: response.data.name || '',
-        description: response.data.description || '',
-        createdAt: response.data.createdAt || '',
-        updatedAt: response.data.updatedAt || '',
-      };
-      setEditingCategory(categoryDetails);
-      form.setFieldsValue(categoryDetails);
-      setIsCategoryModalVisible(true);
+      await bookRepo.delete(id);
+      const updatedBooks = book.filter((book) => book.id !== id);
+      setBook(updatedBooks);
+      message.success('Xóa sách thành công!');
     } catch (error) {
-      message.error('Không thể lấy chi tiết danh mục, sử dụng dữ liệu hiện tại.');
-      const fallbackCategory = {
-        id: category.id || '',
-        name: category.name || '',
-        description: category.description || '',
-        createdAt: category.createdAt || '',
-        updatedAt: category.updatedAt || '',
-      };
-      setEditingCategory(fallbackCategory);
-      form.setFieldsValue(fallbackCategory);
-      setIsCategoryModalVisible(true);
-    }
-  };
+      message.error('Không thể xóa sách!');
 
-  const handleCategoryCancel = () => {
-    setIsCategoryModalVisible(false);
-    setEditingCategory(null);
-    form.resetFields();
-  };
-
-  const handleAddOrUpdateCategory = async (values: CategoryModel) => {
-    try {
-      const payload = {
-        name: values.name.trim(),
-        description: values.description?.trim() || '',
-        status: true,
-      };
-      if (editingCategory) {
-        await categoryRepo.update(editingCategory.id!, payload);
-        message.success('Cập nhật danh mục thành công!');
-      } else {
-        await categoryRepo.create(payload);
-        message.success('Thêm danh mục mới thành công!');
-      }
-      fetchCategories(currentPage, pageSize); 
-    } catch (error) {
-      message.error('Không thể lưu danh mục!');
-    } finally {
-      handleCategoryCancel();  
-    }
-  };
-
-  const handleDeleteCategory = async (id: string) => {
-    try {
-      await categoryRepo.delete(id);
-      message.success('Xóa danh mục thành công!');
-      fetchCategories(currentPage, pageSize);
-    } catch (error) {
-      message.error('Không thể xóa danh mục!');
     }
   };
 
   useEffect(() => {
-    fetchCategories(currentPage, pageSize);
+    fetchBook(currentPage, pageSize);
   }, []);
-
   return {
-    books,
+    book,
     isBookModalVisible,
     editingBook,
     showAddBookModal,
@@ -199,11 +133,6 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     isCategoryModalVisible,
     editingCategory,
     loadingCategories,
-    showAddCategoryModal,
-    showEditCategoryModal,
-    handleCategoryCancel,
-    handleAddOrUpdateCategory,
-    handleDeleteCategory,
     currentPage,
     pageSize,
     totalCategories,  

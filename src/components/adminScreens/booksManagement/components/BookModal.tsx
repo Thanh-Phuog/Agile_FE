@@ -1,9 +1,19 @@
-import React, { useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Select, Upload, Button, Space, Switch } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import type { FormInstance } from 'antd';
-import { BookModel } from '@/api/features/book/model/BookModel';
-import useCategoryManagementViewModel from '../../categoryManagement/viewModel/CategoryManagamentViewModel';
+import React, { useEffect } from "react";
+import {
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Upload,
+  Button,
+  Space,
+  Switch,
+} from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import type { FormInstance } from "antd";
+import { BookModel } from "@/api/features/book/model/BookModel";
+import useCategoryManagementViewModel from "../../categoryManagement/viewModel/CategoryManagamentViewModel";
 
 interface BookModalProps {
   form: FormInstance;
@@ -20,13 +30,20 @@ const BookModal: React.FC<BookModalProps> = ({
   handleBookCancel,
   handleAddOrUpdateBook,
 }) => {
-  const {categories, handlePageChange} = useCategoryManagementViewModel(form);
+  const { categories, handlePageChange } = useCategoryManagementViewModel(form);
   useEffect(() => {
     if (editingBook) {
       form.setFieldsValue({
         ...editingBook,
+        category: editingBook.category?.id,
         status: editingBook.status ?? true,
-        images: [], // Images should be handled manually when editing
+        images:
+          editingBook.images?.map((img, index) => ({
+            uid: `${index}`,
+            name: `Ảnh ${index + 1}`,
+            status: "done",
+            url: img,
+          })) || [],
       });
     } else {
       form.resetFields();
@@ -42,11 +59,11 @@ const BookModal: React.FC<BookModalProps> = ({
 
   return (
     <Modal
-      title={editingBook ? 'Chỉnh sửa sách' : 'Thêm sách mới'}
+      title={editingBook ? "Chỉnh sửa sách" : "Thêm sách mới"}
       open={isBookModalVisible}
       onCancel={handleBookCancel}
       footer={null}
-      destroyOnClose
+      destroyOnHidden={true}
       width={800}
     >
       <Form
@@ -63,25 +80,25 @@ const BookModal: React.FC<BookModalProps> = ({
         <Form.Item
           name="name"
           label="Tên sách"
-          rules={[{ required: true, message: 'Vui lòng nhập tên sách!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên sách!" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="author"
           label="Tác giả"
-          rules={[{ required: true, message: 'Vui lòng nhập tên tác giả!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên tác giả!" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="category"
           label="Danh mục"
-          rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
+          rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
         >
           <Select placeholder="Chọn danh mục">
             {categories.map((cat) => (
-              <Select.Option key={cat.id} value={cat.name}>
+              <Select.Option key={cat.id} value={cat.id}>
                 {cat.name}
               </Select.Option>
             ))}
@@ -90,41 +107,40 @@ const BookModal: React.FC<BookModalProps> = ({
         <Form.Item
           name="price"
           label="Giá (VNĐ)"
-          rules={[{ required: true, message: 'Vui lòng nhập giá sách!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập giá sách!" }]}
         >
           <InputNumber
             min={0}
-            style={{ width: '100%' }}
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value) => value!.replace(/(,*)/g, '')}
+            style={{ width: "100%" }}
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
           />
         </Form.Item>
         <Form.Item
           name="description"
           label="Mô tả"
-          rules={[{ required: true, message: 'Vui lòng nhập mô tả sách!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập mô tả sách!" }]}
         >
           <Input.TextArea rows={4} />
         </Form.Item>
         <Form.Item
           name="totalAmount"
           label="Tồn kho"
-          rules={[{ required: true, message: 'Vui lòng nhập số lượng tồn!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập số lượng tồn!" }]}
         >
-          <InputNumber min={0} style={{ width: '100%' }} />
+          <InputNumber min={0} style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item
           name="soldAmount"
           label="Đã bán"
-          rules={[{ required: true, message: 'Vui lòng nhập số lượng đã bán!' }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập số lượng đã bán!" },
+          ]}
         >
-          <InputNumber min={0} style={{ width: '100%' }} />
+          <InputNumber min={0} style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item
-          name="status"
-          label="Trạng thái"
-          valuePropName="checked"
-        >
+        <Form.Item name="status" label="Trạng thái" valuePropName="checked">
           <Switch checkedChildren="Còn bán" unCheckedChildren="Ngừng bán" />
         </Form.Item>
         <Form.Item
@@ -132,9 +148,19 @@ const BookModal: React.FC<BookModalProps> = ({
           label="Ảnh sách (Thumbnail & ảnh phụ)"
           valuePropName="fileList"
           getValueFromEvent={normFile}
-          rules={[{ required: !editingBook, message: 'Vui lòng tải lên ít nhất 1 ảnh!' }]}
+          rules={[
+            {
+              required: !editingBook,
+              message: "Vui lòng tải lên ít nhất 1 ảnh!",
+            },
+          ]}
         >
-          <Upload listType="picture-card" multiple maxCount={5} beforeUpload={() => false}>
+          <Upload
+            listType="picture-card"
+            multiple
+            maxCount={5}
+            beforeUpload={() => false}
+          >
             <div>
               <UploadOutlined />
               <div style={{ marginTop: 8 }}>Tải lên</div>
@@ -145,7 +171,7 @@ const BookModal: React.FC<BookModalProps> = ({
           <Space>
             <Button onClick={handleBookCancel}>Hủy</Button>
             <Button type="primary" htmlType="submit">
-              {editingBook ? 'Lưu thay đổi' : 'Thêm sách'}
+              {editingBook ? "Lưu thay đổi" : "Thêm sách"}
             </Button>
           </Space>
         </Form.Item>

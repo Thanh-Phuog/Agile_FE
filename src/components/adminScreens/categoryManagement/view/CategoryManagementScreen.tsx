@@ -7,7 +7,6 @@ import useCategoryManagementViewModel from '../viewModel/CategoryManagamentViewM
 
 const CategoryManagementScreen = () => {
   const [form] = Form.useForm();
-  const [activeTab, setActiveTab] = useState('books');
   const {
     categories,
     isCategoryModalVisible,

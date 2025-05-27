@@ -9,9 +9,8 @@ import CategoriesTable from '../../categoryManagement/components/CategoriesTable
 
 const BooksManagementScreen = () => {
   const [form] = Form.useForm();
-  const [activeTab, setActiveTab] = useState('books');
   const {
-    books,
+    book,
     isBookModalVisible,
     editingBook,
     showAddBookModal,
@@ -23,16 +22,12 @@ const BooksManagementScreen = () => {
     isCategoryModalVisible,
     editingCategory,
     loadingCategories,
-    showAddCategoryModal,
-    showEditCategoryModal,
-    handleCategoryCancel,
-    handleAddOrUpdateCategory,
-    handleDeleteCategory,
     currentPage,
     pageSize,
     totalCategories,
     handlePageChange,
   } = useBooksManagementViewModel(form);
+  
 
   return (
     <div className="p-4 md:p-8">
@@ -41,14 +36,15 @@ const BooksManagementScreen = () => {
           </div>
           <Divider />
           <BooksTable
-            // books={books}
+            book={book}
+            // categories={categories}
             showAddBookModal={showAddBookModal}
             showEditBookModal={showEditBookModal}
             handleDeleteBook={handleDeleteBook}
           />
         <BookModal
           form={form}
-          // categories={categories}
+          
           isBookModalVisible={isBookModalVisible}
           editingBook={editingBook}
           handleBookCancel={handleBookCancel}

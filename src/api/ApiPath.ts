@@ -10,6 +10,13 @@ export const ApiPath = {
   CATEGORY_DETAIL: getApiPath("category/detail/"),
   CATEGORY_LIST: getApiPath("category/list"),
 
+  //book
+  BOOK_CREATE: getApiPath("book/create"),
+  BOOK_UPDATE: getApiPath("book/update/"),
+  BOOK_DELETE: getApiPath("book/delete/"),
+  BOOK_DETAIL: getApiPath("book/detail/"),
+  BOOK_LIST: getApiPath("book/list"),
+
 };
 
 function getApiPath(path: string) {

@@ -10,6 +10,7 @@ import {
   Avatar,
   Button,
   Dropdown,
+  Badge,
 } from "antd";
 import { createElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -230,7 +231,10 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           <p className="" onClick={() => router.push("/login")}>Đăng nhập</p>
         )}
       </div>
+      {/* <Badge count={cartItems.length} showZero={false} overflowCount={99}> */}
+
         <ShoppingOutlined style={{ fontSize: "30px", marginRight: "16px" }} onClick={() => router.push("/cart")} />
+      {/* </Badge> */}
         </div>
       </Header>
       <Content className="bg-white">
