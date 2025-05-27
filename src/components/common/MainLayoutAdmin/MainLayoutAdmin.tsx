@@ -34,7 +34,7 @@ const MainLayoutAdmin = ({ children }: { children: React.ReactNode }) => {
   const adminNavItems = [
     { label: "Quản lý sách", link: "/admin/booksManagement" },
     { label: "Quản lý danh mục", link: "/admin/categoryManagement" },
-    { label: "Quản lý đơn hàng", link: "/admin/orders" },
+    { label: "Quản lý đơn hàng", link: "/admin/billManagement" },
     { label: "Quản lý người dùng", link: "/admin/users" },
     { label: "Quay về trang web", link: "/", isBackToSite: true }, // mục cuối cùng
   ];

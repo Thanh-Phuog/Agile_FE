@@ -17,6 +17,11 @@ export const ApiPath = {
   BOOK_DETAIL: getApiPath("book/detail/"),
   BOOK_LIST: getApiPath("book/list"),
 
+  // Bills
+  BILL_CREATE: getApiPath("bills"),
+  BILL_GET_ADMIN: getApiPath("bills"),
+  BILL_GET_USER: getApiPath("bills/my"),
+  BILL_PATCH: getApiPath("bills/"),
 };
 
 function getApiPath(path: string) {

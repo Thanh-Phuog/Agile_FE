@@ -11,8 +11,7 @@ const SignUpViewModel = (repo: AuthenRepo) => {
     const router = useRouter();
 
     const handleSignUp = async (data: RegisterRequestModel) => {
-        try {
-            console.log("data", data);
+        try { 
 
             setIsLoading(true);
             const response = await repo.register({

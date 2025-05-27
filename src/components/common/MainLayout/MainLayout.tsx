@@ -72,6 +72,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     { label: `Trang chủ`, link: "/home" },
     { label: `Cửa hàng`, link: "/shop" },
     { label: `Liên hệ`, link: "/contact" },
+    { label: `Đơn hàng của tôi`, link: "/bill" },
     ...(!user
       ? [
           { label: `Đăng nhập`, link: "/login" },
