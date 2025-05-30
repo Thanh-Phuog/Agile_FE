@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { message } from 'antd';
 import { BillRepo } from '@/api/features/bill/BillRepo';
-import { Bill } from '@/api/features/bill/model/BillModel';
+import { Bill, CreateBillRequest } from '@/api/features/bill/model/BillModel';
 
 const useBillViewModel = () => {
   const [bills, setBills] = useState<Bill[]>([]);
@@ -21,6 +21,25 @@ const useBillViewModel = () => {
     }
   };
 
+
+  const payment = async (cartItems: CreateBillRequest) => {
+    setLoading(true);
+    try {
+      const response = await billRepo.create(cartItems);
+      if (response.error) {
+      message.error(response.error.message || "Không thể tạo đơn hàng!");
+      return false;
+    } else {
+      message.success("Đơn hàng đã được tạo thành công!");
+      return true;
+    }
+  } catch (error) {
+    message.error("Lỗi hệ thống khi tạo đơn hàng!");
+    return false;
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     fetchUserBills();
   }, []);
@@ -29,6 +48,7 @@ const useBillViewModel = () => {
     bills,
     loading,
     fetchUserBills,
+    payment,
   };
 };
 

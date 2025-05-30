@@ -16,9 +16,9 @@ const useBillManagementViewModel = () => {
     setLoading(true);
     try {
       const response = await billRepo.getAll({ page, limit });
-      setBills(response.data.bills || []);
+      setBills(response.data || []);
       setCurrentPage(page);
-      setTotal(response.data.total || 0);
+      // setTotal(response.data.total || 0);
     } catch (error) {
       message.error('Không thể tải danh sách đơn hàng!');
     } finally {
@@ -45,10 +45,6 @@ const useBillManagementViewModel = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBills(currentPage, pageSize);
-  }, []);
-
   return {
     bills,
     currentPage,
@@ -57,6 +53,7 @@ const useBillManagementViewModel = () => {
     loading,
     handleStatusChange,
     handlePageChange,
+    fetchBills,
   };
 };
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { BookModel } from "@/api/features/book/model/BookModel";
 import CartItem from "./component/cartItems";
 import {
   Button,
@@ -10,28 +9,42 @@ import {
   Row,
   Col,
   Divider,
+  Spin,
+  Input,
 } from "antd";
 import { useAuth } from "@/context/auth/useAuth";
+import useCartViewModel from "./viewModel/cartViewModel";
+import { cartRepo } from "@/api/features/cart/CartRepo";
+import useBillViewModel from "../bill/viewModel/billViewModel";
 const { Title, Text } = Typography;
 
 const Cart = () => {
-  const [cart, setCart] = useState<(BookModel & { quantity: number })[]>([]);
+  const { user } = useAuth();
+  const {
+    cartItems,
+    loading,
+    fetchCartItems,
+    removeFromCart,
+    updateQuantityLocal,
+  } = useCartViewModel(cartRepo);
+
+  const { loading: billLoading, payment } = useBillViewModel();
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuth();
 
+  // Thêm state lưu thông tin khách hàng trong modal
+  const [customerInfo, setCustomerInfo] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+  });
+
+  // Load giỏ hàng khi vào trang
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
+    fetchCartItems();
   }, []);
-
-  // Cập nhật cart trong state và localStorage
-  const updateCart = (updatedCart: (BookModel & { quantity: number })[]) => {
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    setCart(updatedCart);
-  };
 
   const handleCheckChange = (id: string, checked: boolean) => {
     if (checked) {
@@ -41,24 +54,17 @@ const Cart = () => {
     }
   };
 
-  const handleRemove = (id: string) => {
-    const newCart = cart.filter((item) => item.id !== id);
-    updateCart(newCart);
-    setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
-  };
-
   const handleQuantityChange = (id: string, quantity: number) => {
     if (quantity <= 0) return; // tránh số lượng âm hoặc 0
-    const newCart = cart.map((item) =>
-      item.id === id ? { ...item, quantity } : item
-    );
-    updateCart(newCart);
+    updateQuantityLocal(id, quantity);
   };
 
-  const selectedItems = cart.filter((item) => selectedIds.includes(item.id!));
+  const selectedItems = cartItems.filter((item) =>
+    selectedIds.includes(item.id!)
+  );
 
   const totalSelected = selectedItems.reduce(
-    (sum, item) => sum + (item.price ?? 0) * item.quantity,
+    (sum, item) => sum + (item.book?.price ?? 0) * item.quantity,
     0
   );
 
@@ -68,6 +74,13 @@ const Cart = () => {
         title: "Vui lòng chọn ít nhất một sản phẩm để thanh toán",
       });
     }
+    // Khởi tạo customerInfo khi mở modal để dữ liệu mới nhất
+    setCustomerInfo({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      address: user?.address || "",
+    });
     setIsModalOpen(true);
   };
 
@@ -75,20 +88,31 @@ const Cart = () => {
     setIsModalOpen(false);
   };
 
+  // Xử lý thay đổi input thông tin khách hàng
+  const handleCustomerInfoChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof typeof customerInfo
+  ) => {
+    setCustomerInfo((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Giỏ hàng của bạn</h1>
-      {cart.length === 0 ? (
+
+      {loading ? (
+        <Spin tip="Đang tải giỏ hàng..." />
+      ) : cartItems.length === 0 ? (
         <p className="text-gray-500">Không có sản phẩm nào trong giỏ.</p>
       ) : (
         <>
-          {cart.map((item) => (
+          {cartItems.map((item) => (
             <CartItem
-              key={item.id}
+              key={item.bookId}
               item={item}
               checked={selectedIds.includes(item.id!)}
               onCheckChange={handleCheckChange}
-              onRemove={handleRemove}
+              onRemove={removeFromCart}
               onChangeQuantity={handleQuantityChange}
             />
           ))}
@@ -115,16 +139,34 @@ const Cart = () => {
                 Thanh toán đơn hàng
               </Title>
             }
-            visible={isModalOpen}
-            onOk={() => {
-              // Xử lý thanh toán thành công: xóa các sản phẩm được chọn khỏi giỏ hàng
-              const newCart = cart.filter(
-                (item) => !selectedIds.includes(item.id!)
-              );
-              updateCart(newCart);
-              setSelectedIds([]);
-              setIsModalOpen(false);
-              Modal.success({ title: "Thanh toán thành công!" });
+            open={isModalOpen}
+            onOk={async () => {
+              if (billLoading) return;
+
+              if (!customerInfo.name.trim()) {
+                Modal.error({ title: "Vui lòng nhập họ tên." });
+                return;
+              }
+              if (!customerInfo.email.trim()) {
+                Modal.error({ title: "Vui lòng nhập email." });
+                return;
+              }
+              if (!customerInfo.phone.trim()) {
+                Modal.error({ title: "Vui lòng nhập số điện thoại." });
+                return;
+              }
+              if (!customerInfo.address.trim()) {
+                Modal.error({ title: "Vui lòng nhập địa chỉ." });
+                return;
+              }
+
+              const success = await payment({ cartItems: selectedIds });
+
+              if (success) {
+                setSelectedIds([]);
+                fetchCartItems();
+                handleCloseModal();
+              }
             }}
             onCancel={handleCloseModal}
             okText="Xác nhận"
@@ -142,14 +184,17 @@ const Cart = () => {
                     <List.Item>
                       <Row style={{ width: "100%" }}>
                         <Col span={14}>
-                          <Text strong>{item.name}</Text>
+                          <Text strong>{item.book?.name}</Text>
                         </Col>
                         <Col span={5}>
                           <Text>x {item.quantity}</Text>
                         </Col>
                         <Col span={5} style={{ textAlign: "right" }}>
                           <Text>
-                            {(item.price! * item.quantity).toLocaleString()} đ
+                            {(
+                              item.book?.price! * item.quantity
+                            ).toLocaleString()}{" "}
+                            đ
                           </Text>
                         </Col>
                       </Row>
@@ -160,7 +205,7 @@ const Cart = () => {
                 <Row justify="end" style={{ fontSize: 16, fontWeight: "bold" }}>
                   Tổng tiền:{" "}
                   {selectedItems
-                    .reduce((sum, i) => sum + i.price! * i.quantity, 0)
+                    .reduce((sum, i) => sum + i.book?.price! * i.quantity, 0)
                     .toLocaleString()}{" "}
                   đ
                 </Row>
@@ -171,23 +216,43 @@ const Cart = () => {
                 <Row gutter={[16, 8]}>
                   <Col span={12}>
                     <Text>
-                      <b>Họ tên:</b> {user?.name}
+                      <b>Họ tên:</b>
                     </Text>
+                    <Input
+                      value={customerInfo.name}
+                      onChange={(e) => handleCustomerInfoChange(e, "name")}
+                      placeholder="Nhập họ tên"
+                    />
                   </Col>
                   <Col span={12}>
                     <Text>
-                      <b>Email:</b> {user?.email}
+                      <b>Email:</b>
                     </Text>
+                    <Input
+                      value={customerInfo.email}
+                      onChange={(e) => handleCustomerInfoChange(e, "email")}
+                      placeholder="Nhập email"
+                    />
                   </Col>
                   <Col span={12}>
                     <Text>
-                      <b>Số điện thoại:</b> {user?.phone}
+                      <b>Số điện thoại:</b>
                     </Text>
+                    <Input
+                      value={customerInfo.phone}
+                      onChange={(e) => handleCustomerInfoChange(e, "phone")}
+                      placeholder="Nhập số điện thoại"
+                    />
                   </Col>
                   <Col span={24}>
                     <Text>
-                      <b>Địa chỉ:</b> {user?.address || "Chưa cập nhật"}
+                      <b>Địa chỉ:</b>
                     </Text>
+                    <Input
+                      value={customerInfo.address}
+                      onChange={(e) => handleCustomerInfoChange(e, "address")}
+                      placeholder="Nhập địa chỉ"
+                    />
                   </Col>
                 </Row>
               </div>

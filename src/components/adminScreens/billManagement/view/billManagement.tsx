@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Divider } from 'antd';
 import BillsTable from '../components/BillsTable';
 import useBillManagementViewModel from '../viewModel/billManagement';
@@ -12,8 +12,17 @@ const BillManagement: React.FC = () => {
     total,
     handleStatusChange,
     handlePageChange,
+    fetchBills
   } = useBillManagementViewModel();
 
+  useEffect(() => {
+    // Fetch bills when the component mounts
+    fetchBills(currentPage, pageSize);
+  }
+  , []);
+
+  console.log('bills', bills);
+  
   return (
     <div className="p-4 md:p-8">
       <div className="mb-6">

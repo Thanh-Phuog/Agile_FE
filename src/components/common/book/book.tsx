@@ -5,6 +5,8 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useAuth } from "@/context/auth/useAuth";
 import { useRouter } from "next/navigation";
 import { BookModel } from "@/api/features/book/model/BookModel";
+import useCartViewModel from "@/components/screens/cart/viewModel/cartViewModel";
+import { cartRepo } from "@/api/features/cart/CartRepo";
 
 const { Meta } = Card;
 
@@ -16,28 +18,27 @@ const ProductBook = ({ product }: Props) => {
 
     const {user} = useAuth();
     const router = useRouter();
+    const { addToCart } = useCartViewModel(cartRepo);
 
-const addToCart = () => {
+const handleAddToCart = async () => {
   if (!user) {
     router.push("/login");
     message.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
-  } else {
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    return;
+  }
 
-    const index = existingCart.findIndex((item: any) => item.id === product.id);
-
-    if (index !== -1) {
-      // Nếu đã có sản phẩm -> tăng số lượng
-      existingCart[index].quantity += 1;
-    } else {
-      // Nếu chưa có -> thêm mới với quantity = 1
-      existingCart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem('cart', JSON.stringify(existingCart));
+  try {
+    await addToCart({
+      bookId: product.id,
+      quantity: 1, // UI quyết định số lượng
+    });
     message.success("Sản phẩm đã được thêm vào giỏ hàng!");
+  } catch (err) {
+    message.error("Thêm sản phẩm thất bại!");
+    console.error("Add to cart error:", err);
   }
 };
+
 
   return (
     <div className="w-2xs m-4">
@@ -69,7 +70,7 @@ const addToCart = () => {
             type="primary" 
             icon={<ShoppingCartOutlined />} 
             className="rounded-lg bg-indigo-600 hover:bg-indigo-700"
-            onClick={addToCart}
+            onClick={handleAddToCart}
           >
             Thêm vào giỏ
           </Button>

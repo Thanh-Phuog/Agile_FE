@@ -22,6 +22,12 @@ export const ApiPath = {
   BILL_GET_ADMIN: getApiPath("bills"),
   BILL_GET_USER: getApiPath("bills/my"),
   BILL_PATCH: getApiPath("bills/"),
+
+  //Cart
+  CART_ADD: getApiPath("cart"),
+  CART_GET: getApiPath("cart"),
+  CART_DELETE: getApiPath("cart/"),
+  CART_UPDATE: getApiPath("cart/"),
 };
 
 function getApiPath(path: string) {

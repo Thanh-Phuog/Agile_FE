@@ -21,15 +21,16 @@ const BillsTable: React.FC<BillsTableProps> = ({
 }) => {
   const columns = [
     {
-      title: 'ID',
+      title: 'Mã đơn',
       dataIndex: 'id',
       key: 'id',
     },
     {
       title: 'Sản phẩm',
-      dataIndex: 'cartItems',
-      key: 'cartItems',
-      render: (cartItems: string[]) => cartItems.join(', '),
+      dataIndex: 'items',
+      key: 'items',
+      render: (items: Bill['items']) =>
+        items?.map((item) => item.book?.name).filter(Boolean).join(', ') || 'Không có',
     },
     {
       title: 'Trạng thái',
@@ -38,12 +39,12 @@ const BillsTable: React.FC<BillsTableProps> = ({
       render: (status: BillStatus, record: Bill) => (
         <Select
           value={status}
-          onChange={(value) => handleStatusChange(record.id, value)}
-          className="w-32"
+          onChange={(value) => handleStatusChange(record.id!, value)}
+          className="w-40"
         >
-          <Select.Option value={BillStatus.PENDING}>Pending</Select.Option>
-          <Select.Option value={BillStatus.PAID}>Paid</Select.Option>
-          <Select.Option value={BillStatus.CANCELLED}>Cancelled</Select.Option>
+          <Select.Option value={BillStatus.PENDING}>Chờ xử lý</Select.Option>
+          <Select.Option value={BillStatus.PAID}>Đã thanh toán</Select.Option>
+          <Select.Option value={BillStatus.CANCELLED}>Đã huỷ</Select.Option>
         </Select>
       ),
     },
@@ -51,7 +52,7 @@ const BillsTable: React.FC<BillsTableProps> = ({
       title: 'Ngày tạo',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
+      render: (date: string) => new Date(date).toLocaleDateString('vi-VN'),
     },
   ];
 
@@ -67,7 +68,7 @@ const BillsTable: React.FC<BillsTableProps> = ({
         onChange: handlePageChange,
         showSizeChanger: true,
       }}
-      title={() => <span>Danh sách đơn hàng</span>}
+      title={() => <span className="text-lg font-semibold">Danh sách đơn hàng</span>}
     />
   );
 };

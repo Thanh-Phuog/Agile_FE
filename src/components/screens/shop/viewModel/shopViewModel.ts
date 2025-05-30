@@ -34,7 +34,7 @@ const useShopViewModel = () => {
       const response = await bookRepo.search({
         page,
         limit: 10,
-        keyword: filterParams.keyword,
+        search: filterParams.keyword,
         fromPrice: filterParams.fromPrice,
         toPrice: filterParams.toPrice,
       });
