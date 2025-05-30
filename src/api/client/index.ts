@@ -35,7 +35,7 @@ api.interceptors.response.use(
     return response?.data;
   },
   (error) => {
-    console.error("Response error:",error);
+    console.error("Response error:", error);
     error.response || error;
     if (error?.response?.status === 401 || error?.response?.status === 403) {
       Modal.error({
@@ -81,12 +81,14 @@ class AxiosClient implements IApiClient {
     return ModelConverter.decode(response, BaseApiResponseModel<T>);
   }
 
-  async patch<T extends Object>(
-    path: string,
-    data: Map<string, any> | any
-  ): Promise<BaseApiResponseModel<T>> {
-    return this.put(path, data);
-  }
+async patch<T extends Object>(
+  path: string,
+  data: Map<string, any> | any
+): Promise<BaseApiResponseModel<T>> {
+  let response = await api.patch(path, data); 
+  return ModelConverter.decode(response, BaseApiResponseModel<T>);
+}
+
   async put<T extends Object>(
     path: string,
     data: Map<string, any> | any
