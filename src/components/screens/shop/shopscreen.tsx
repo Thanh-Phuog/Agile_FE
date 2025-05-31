@@ -58,7 +58,7 @@ const ShopScreen = () => {
             </Form.Item>
           </Col>
 
-          <Col xs={24} sm={12} md={6}>
+          {/* <Col xs={24} sm={12} md={6}>
             <Form.Item
               label="Danh mục (ID, cách nhau dấu phẩy)"
               name="categories"
@@ -66,7 +66,7 @@ const ShopScreen = () => {
             >
               <Input placeholder="VD: 1,2,3" allowClear />
             </Form.Item>
-          </Col>
+          </Col> */}
 
           <Col xs={24} sm={24} md={8}>
             <Form.Item
