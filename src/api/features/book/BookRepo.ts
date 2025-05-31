@@ -34,7 +34,7 @@ export class BookRepo implements IBookRepo {
     async getList(data: { page: number; limit: number }): Promise<BaseApiResponseModel<BookModel[]>> {
         return client.get(ApiPath.BOOK_LIST, data);
     }
-    async search(data:{ page: number; limit: number; search?: string, fromPrice?: number, toPrice?: number }): Promise<BaseApiResponseModel<BookModel[]>> {
+    async search(data:{ page: number; limit: number; search?: string, fromPrice?: number, toPrice?: number,  categoryIds?: string }): Promise<BaseApiResponseModel<BookModel[]>> {
         return client.get(ApiPath.BOOK_LIST, data);
     }
 }

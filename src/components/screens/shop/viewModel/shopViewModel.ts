@@ -37,6 +37,7 @@ const useShopViewModel = () => {
         search: filterParams.keyword,
         fromPrice: filterParams.fromPrice,
         toPrice: filterParams.toPrice,
+        categoryIds: filterParams.categories
       });
 
       setShop(response.data || []);

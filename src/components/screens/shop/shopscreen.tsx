@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Button, Row, Col, Slider, Typography } from "antd";
+import { Form, Input, Button, Row, Col, Slider, Typography, Select } from "antd";
 import SwiperBannerCard from "./component/swiperBanner";
 import ProductBook from "@/components/common/book/book";
 import useShopViewModel from "./viewModel/shopViewModel";
+import React from "react";
+import useCategoryManagementViewModel from "@/components/adminScreens/categoryManagement/viewModel/CategoryManagamentViewModel";
 
 const { Text } = Typography;
 
@@ -12,6 +14,8 @@ const ShopScreen = () => {
   const [form] = Form.useForm();
 
   const { shop, loading, error, setFilters, filters } = useShopViewModel();
+    const { categotiesSelected, fetchCategories, totalCategories, currentPage, loadingCategories } =
+    useCategoryManagementViewModel(form);
 
   const [priceRange, setPriceRange] = useState<[number, number]>([
     filters.fromPrice,
@@ -31,6 +35,23 @@ const ShopScreen = () => {
   const onPriceChange = (value: number[]) => {
     setPriceRange([value[0], value[1]]);
   };
+
+  const loadingRef = React.useRef(false);
+  
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    if (
+      target.scrollTop + target.clientHeight >= target.scrollHeight - 10 &&
+      categotiesSelected.length < totalCategories &&
+      !loadingRef.current
+    ) {
+      loadingRef.current = true;
+      fetchCategories(currentPage + 1).finally(() => {
+        loadingRef.current = false;
+      });
+    }
+  };
+  
 
   return (
     <div>
@@ -58,15 +79,26 @@ const ShopScreen = () => {
             </Form.Item>
           </Col>
 
-          {/* <Col xs={24} sm={12} md={6}>
+          <Col xs={24} sm={12} md={6}>
             <Form.Item
               label="Danh mục (ID, cách nhau dấu phẩy)"
               name="categories"
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="VD: 1,2,3" allowClear />
+               <Select
+  placeholder="Chọn danh mục"
+  onPopupScroll={handleScroll}
+  loading={loadingCategories}
+  virtual={false} // tắt ảo hóa để bắt sự kiện scroll dễ hơn
+>
+  {categotiesSelected.map((cat) => (
+    <Select.Option key={cat.id} value={cat.id}>
+      {cat.name}
+    </Select.Option>
+  ))}
+</Select>
             </Form.Item>
-          </Col> */}
+          </Col>
 
           <Col xs={24} sm={24} md={8}>
             <Form.Item
