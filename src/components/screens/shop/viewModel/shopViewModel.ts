@@ -33,7 +33,7 @@ const useShopViewModel = () => {
       // Chuẩn bị params cho API (bạn có thể parse categories nếu API cần array)
       const response = await bookRepo.search({
         page,
-        limit: 10,
+        limit: 100,
         search: filterParams.keyword,
         fromPrice: filterParams.fromPrice,
         toPrice: filterParams.toPrice,

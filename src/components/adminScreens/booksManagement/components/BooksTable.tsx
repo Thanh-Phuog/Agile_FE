@@ -107,7 +107,7 @@ const BooksTable: React.FC<BooksTableProps> = ({
           <Button icon={<EditOutlined />} onClick={() => showEditBookModal(record)}>
             Sửa
           </Button>
-          <Popconfirm
+          {/* <Popconfirm
             title="Bạn có chắc chắn muốn xóa sách này?"
             onConfirm={() => handleDeleteBook(record.id)}
             okText="Xóa"
@@ -116,7 +116,7 @@ const BooksTable: React.FC<BooksTableProps> = ({
             <Button icon={<DeleteOutlined />} danger>
               Xóa
             </Button>
-          </Popconfirm>
+          </Popconfirm> */}
         </Space>
       ),
     },
