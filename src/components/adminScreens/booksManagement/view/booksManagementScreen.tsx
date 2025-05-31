@@ -24,8 +24,9 @@ const BooksManagementScreen = () => {
     loadingCategories,
     currentPage,
     pageSize,
-    totalCategories,
+    TotalBook,
     handlePageChange,
+    loadingBooks,
   } = useBooksManagementViewModel(form);
   
   
@@ -38,10 +39,14 @@ const BooksManagementScreen = () => {
           <Divider />
           <BooksTable
             book={book}
-            // categories={categories}
             showAddBookModal={showAddBookModal}
             showEditBookModal={showEditBookModal}
             handleDeleteBook={handleDeleteBook}
+            loading={loadingBooks}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalBook={TotalBook}
+            onPageChange={handlePageChange}
           />
         <BookModal
           form={form}

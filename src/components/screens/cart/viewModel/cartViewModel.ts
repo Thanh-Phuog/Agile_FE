@@ -75,7 +75,6 @@ const useCartViewModel = (cartRepo: CartRepo) => {
       setLoading(true);
       const response = await cartRepo.removeFromCart(id);
       if (!response.error) {
-        fetchCartItems();
         // Xóa buffered nếu có
         setBufferedQuantities((prev) => {
           const copy = { ...prev };
@@ -96,19 +95,17 @@ const useCartViewModel = (cartRepo: CartRepo) => {
   // Hàm gọi API cập nhật số lượng
   const updateQuantityApi = async (bookId: string, quantity: number) => {
     try {
-      setLoading(true);
+      // setLoading(true);
       const response = await cartRepo.updateCartItem(bookId, quantity);
       if (!response.error) {
         console.log(`✅ Đã cập nhật số lượng cho ${bookId}:`, quantity);
-        // Xóa buffered khi đã update thành công
-        setBufferedQuantities((prev) => {
-          const copy = { ...prev };
-          delete copy[bookId];
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(copy));
-          return copy;
-        });
-        // Cập nhật lại cartItems sau khi update thành công
-      fetchCartItems();
+        // // Xóa buffered khi đã update thành công
+        // setBufferedQuantities((prev) => {
+        //   const copy = { ...prev };
+        //   delete copy[bookId];
+        //   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(copy));
+        //   return copy;
+        // });
 
       } else {
         console.error("❌ Lỗi khi cập nhật số lượng:", response.error);
@@ -116,7 +113,7 @@ const useCartViewModel = (cartRepo: CartRepo) => {
     } catch (error) {
       console.error("❌ Lỗi hệ thống khi cập nhật số lượng:", error);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -140,8 +137,7 @@ const useCartViewModel = (cartRepo: CartRepo) => {
     // Đặt debounce mới 10s
     debounceTimers.current[bookId] = setTimeout(() => {
       updateQuantityApi(bookId, quantity);
-      delete debounceTimers.current[bookId];
-    }, 10000);
+    }, 1000);
   };
 
   return {

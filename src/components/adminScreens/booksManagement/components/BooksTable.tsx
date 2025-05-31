@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Space, Image, Tag, Popconfirm, Form } from 'antd';
+import { Table, Button, Space, Image, Tag, Popconfirm, Form, Spin, Pagination } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { BookModel } from '@/api/features/book/model/BookModel';
@@ -11,6 +11,11 @@ interface BooksTableProps {
   showAddBookModal: () => void;
   showEditBookModal: (book: BookModel) => void;
   handleDeleteBook: (id: string) => void;
+  loading?: boolean; 
+  currentPage?: number;
+  pageSize?: number;
+  totalBook?: number;
+  onPageChange?: (page: number, pageSize: number) => void;
 }
 
 const BooksTable: React.FC<BooksTableProps> = ({
@@ -18,6 +23,11 @@ const BooksTable: React.FC<BooksTableProps> = ({
   showAddBookModal,
   showEditBookModal,
   handleDeleteBook,
+  loading,
+  currentPage,
+  pageSize,
+  totalBook,
+  onPageChange,
 }) => {
 
   const columns: ColumnsType<BookModel> = [
@@ -127,6 +137,16 @@ const BooksTable: React.FC<BooksTableProps> = ({
         pagination={{ pageSize: 5 }}
         scroll={{ x: 'max-content' }}
       />
+       <div className="mt-4 flex justify-end">
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={totalBook}
+            onChange={onPageChange}
+            showSizeChanger
+            pageSizeOptions={['5', '10', '20']}
+          />
+        </div>
     </>
   );
 };

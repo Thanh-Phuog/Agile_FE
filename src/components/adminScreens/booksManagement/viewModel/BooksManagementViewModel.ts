@@ -19,7 +19,7 @@ const useBooksManagementViewModel = (form: FormInstance) => {
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [totalCategories, setTotalCategories] = useState(0);  
+  const [TotalBook, setTotalBook] = useState(0);  
   const [loadingBooks, setLoadingBooks] = useState(false);
 
   const bookRepo = new BookRepo();
@@ -31,7 +31,7 @@ const useBooksManagementViewModel = (form: FormInstance) => {
       const fetchedBooks = response.data || [];
       setBook(fetchedBooks); 
       setCurrentPage(page);
-      setTotalCategories(response.paging.total || 0);  
+      setTotalBook(response.paging.total || 0);  
     } catch (error) {
       message.error('Không thể tải danh sách quyển sách !');
     } finally {
@@ -164,8 +164,9 @@ const dataUpdate: BookModelUpdate = {
     loadingCategories,
     currentPage,
     pageSize,
-    totalCategories,  
+    TotalBook,  
     handlePageChange,
+    loadingBooks,
   };
 };
 

@@ -78,11 +78,6 @@ const Login = () => {
               {error}
             </div>
           )}
-          <div className="mb-4 text-center text-xs">
-            <a href="/forgotPassword" className="text-blue-500 hover:underline">
-              {"Quên mật khẩu?"}
-            </a>
-          </div>
           <Form.Item>
             <Button
               type="primary"
