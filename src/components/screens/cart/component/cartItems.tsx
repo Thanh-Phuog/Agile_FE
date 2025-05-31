@@ -5,6 +5,7 @@ import { CartModel } from "@/api/features/cart/model/CartModel";
 
 interface CartItemProps {
   item: CartModel;
+  quantity?: number;
   onRemove: (id: string) => void;
   onChangeQuantity: (id: string, qty: number) => void;
   checked: boolean;
@@ -12,7 +13,8 @@ interface CartItemProps {
 }
 
 
-const CartItem = ({ item, onRemove, onChangeQuantity, checked, onCheckChange }: CartItemProps) => {
+const CartItem = ({ item, quantity,onRemove, onChangeQuantity, checked, onCheckChange }: CartItemProps) => {
+  
   return (
     <div className="flex items-center p-4 border-b">
       <Checkbox
@@ -33,7 +35,7 @@ const CartItem = ({ item, onRemove, onChangeQuantity, checked, onCheckChange }: 
           <span className="mr-2">Số lượng:</span>
           <InputNumber
             min={1}
-            value={item.quantity}
+            value={quantity ?? item.quantity}
             controls={true}
             onChange={(value) => onChangeQuantity(item.id!, value as number)}
             className="w-24"

@@ -26,7 +26,9 @@ const Cart = () => {
     fetchCartItems,
     removeFromCart,
     updateQuantityLocal,
+    bufferedQuantities,
   } = useCartViewModel(cartRepo);
+  
 
   const { loading: billLoading, payment } = useBillViewModel();
 
@@ -114,6 +116,7 @@ const Cart = () => {
               onCheckChange={handleCheckChange}
               onRemove={removeFromCart}
               onChangeQuantity={handleQuantityChange}
+              quantity={bufferedQuantities[item.id!] ?? item.quantity}
             />
           ))}
 

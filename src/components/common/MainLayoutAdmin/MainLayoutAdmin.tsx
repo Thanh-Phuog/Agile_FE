@@ -35,7 +35,7 @@ const MainLayoutAdmin = ({ children }: { children: React.ReactNode }) => {
     { label: "Quản lý sách", link: "/admin/booksManagement" },
     { label: "Quản lý danh mục", link: "/admin/categoryManagement" },
     { label: "Quản lý đơn hàng", link: "/admin/billManagement" },
-    { label: "Quản lý người dùng", link: "/admin/users" },
+    { label: "Quản lý người dùng", link: "/admin/userManagement" },
     { label: "Quay về trang web", link: "/", isBackToSite: true }, // mục cuối cùng
   ];
 

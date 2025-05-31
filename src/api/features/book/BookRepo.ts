@@ -1,15 +1,16 @@
 import { BaseApiResponseModel } from "@/api/baseApiResponseModel/baseApiResponseModel";
-import { BookModel, BookModelRequest } from "./model/BookModel";
+import { BookModel, BookModelRequest, BookModelUpdate } from "./model/BookModel";
 import client from "@/api/client";
 import { ApiPath } from "@/api/ApiPath";
 import { TransferToFormData } from "@/utils/helper/TransferToFormData";
 
 interface IBookRepo {
     create(data: BookModelRequest): Promise<BaseApiResponseModel<BookModel>>;
-    update(id: string, data: BookModelRequest): Promise<BaseApiResponseModel<BookModel>>;
+    update(id: string, data: BookModelUpdate): Promise<BaseApiResponseModel<BookModel>>;
     delete(id: string): Promise<BaseApiResponseModel<BookModel>>;
     getById(id: string): Promise<BaseApiResponseModel<BookModel>>;
-    getList(data: Partial<BookModel>): Promise<BaseApiResponseModel<BookModel[]>>;
+    getList(data: { page: number; limit: number }): Promise<BaseApiResponseModel<BookModel[]>>;
+    search(data: { page: number; limit: number; search?: string; fromPrice?: number; toPrice?: number }): Promise<BaseApiResponseModel<BookModel[]>>;
 }
 
 export class BookRepo implements IBookRepo {
@@ -20,8 +21,9 @@ export class BookRepo implements IBookRepo {
       headers: { "Content-Type": "multipart/form-data" },
     });
     }
-    async update(id: string, data: BookModelRequest): Promise<BaseApiResponseModel<BookModel>> {
-        return client.put(ApiPath.BOOK_UPDATE + id, data);
+    async update(id: string, data: BookModelUpdate): Promise<BaseApiResponseModel<BookModel>> {
+        const tranferedData = TransferToFormData(data);
+    return client.put(ApiPath.BOOK_UPDATE + id, tranferedData);
     }
     async delete(id: string): Promise<BaseApiResponseModel<BookModel>> {
         return client.delete(ApiPath.BOOK_DELETE + id);
@@ -29,10 +31,10 @@ export class BookRepo implements IBookRepo {
     async getById(id: string): Promise<BaseApiResponseModel<BookModel>> {
         return client.get(ApiPath.BOOK_DETAIL + id);
     }
-    async getList(data: Partial<BookModel> & { page: number; limit: number }): Promise<BaseApiResponseModel<BookModel[]>> {
+    async getList(data: { page: number; limit: number }): Promise<BaseApiResponseModel<BookModel[]>> {
         return client.get(ApiPath.BOOK_LIST, data);
     }
-    async search(data: Partial<BookModel> & { page: number; limit: number; search?: string, fromPrice?: number, toPrice?: number }): Promise<BaseApiResponseModel<BookModel[]>> {
+    async search(data:{ page: number; limit: number; search?: string, fromPrice?: number, toPrice?: number }): Promise<BaseApiResponseModel<BookModel[]>> {
         return client.get(ApiPath.BOOK_LIST, data);
     }
 }

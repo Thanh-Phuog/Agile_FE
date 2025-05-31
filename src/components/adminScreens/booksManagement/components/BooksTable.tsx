@@ -19,8 +19,7 @@ const BooksTable: React.FC<BooksTableProps> = ({
   showEditBookModal,
   handleDeleteBook,
 }) => {
-  console.log("books", book);
-  
+
   const columns: ColumnsType<BookModel> = [
     {
       title: 'Ảnh bìa',
@@ -37,18 +36,21 @@ const BooksTable: React.FC<BooksTableProps> = ({
       title: 'Tên sách',
       dataIndex: 'name',
       key: 'name',
+        ellipsis: { showTitle: true },
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Tác giả',
       dataIndex: 'author',
       key: 'author',
+      ellipsis: { showTitle: true },
       sorter: (a, b) => a.author.localeCompare(b.author),
     },
     {
       title: 'Danh mục',
       dataIndex: 'category',
       key: 'category',
+        ellipsis:true,
       render: (cat: CategoryModel) => <Tag color="blue">#{cat.name}</Tag>, // Bạn có thể map sang tên danh mục nếu có
     },
     // {
@@ -74,13 +76,19 @@ const BooksTable: React.FC<BooksTableProps> = ({
       dataIndex: 'soldAmount',
       key: 'soldAmount',
     },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: boolean) =>
-        status ? <Tag color="green">Còn bán</Tag> : <Tag color="red">Ngừng bán</Tag>,
-    },
+  {
+  title: 'Trạng thái',
+  key: 'status',
+  render: (_, record) => {
+    const isAvailable = record.status && record.totalAmount > 0;
+    return isAvailable ? (
+      <Tag color="green">Còn bán</Tag>
+    ) : (
+      <Tag color="red">Ngừng bán</Tag>
+    );
+  },
+},
+
     {
       title: 'Hành động',
       key: 'action',

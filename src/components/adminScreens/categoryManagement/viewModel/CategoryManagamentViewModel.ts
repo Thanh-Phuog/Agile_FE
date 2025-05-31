@@ -8,12 +8,14 @@ import { CategoryModel } from '@/api/features/category/model/CategoryModel';
 
 const useCategoryManagementViewModel = (form: FormInstance) => {
   const [categories, setCategories] = useState<CategoryModel[]>([]);
+  const [categotiesSelected, setCategoriesSelected] = useState<CategoryModel[]>([]);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryModel | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [totalCategories, setTotalCategories] = useState(0);  
+  const [hasMoreCategories, setHasMoreCategories] = useState(true);
 
   const categoryRepo = new CategoryRepo();
 
@@ -31,6 +33,7 @@ const useCategoryManagementViewModel = (form: FormInstance) => {
           }))
         : [];
       setCategories(fetchedCategories);
+      setCategoriesSelected((prev) => [...prev, ...fetchedCategories]);
       setCurrentPage(page);
       setTotalCategories(response.paging.total || 0);  
     } catch (error) {
@@ -39,6 +42,20 @@ const useCategoryManagementViewModel = (form: FormInstance) => {
       setLoadingCategories(false);
     }
   };
+
+  const loadMoreCategories = async () => {
+    if (hasMoreCategories && !loadingCategories) {
+      const nextPage = currentPage + 1;
+      fetchCategories(nextPage, pageSize);
+      setCurrentPage(nextPage);
+      if (nextPage * pageSize >= totalCategories) {
+        setHasMoreCategories(false);
+      }
+    }
+  };
+  
+    
+
 
   const handlePageChange = (page: number, newPageSize: number) => {
     if (page > 0) {
@@ -139,6 +156,8 @@ const useCategoryManagementViewModel = (form: FormInstance) => {
     pageSize,
     totalCategories,  
     handlePageChange,
+    fetchCategories,
+    categotiesSelected,
   };
 };
 

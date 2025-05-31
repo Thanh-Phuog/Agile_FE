@@ -4,7 +4,7 @@ import type { FormInstance } from 'antd';
 import type { UploadFile } from 'antd/es/upload';
 import { CategoryRepo } from '@/api/features/category/CategoryRepo';
 import { CategoryModel } from '@/api/features/category/model/CategoryModel';
-import { BookModel, BookModelRequest } from '@/api/features/book/model/BookModel';
+import { BookModel, BookModelRequest, BookModelUpdate } from '@/api/features/book/model/BookModel';
 import { BookRepo } from '@/api/features/book/BookRepo';
 
 
@@ -71,30 +71,58 @@ const useBooksManagementViewModel = (form: FormInstance) => {
     form.resetFields();
   };
 
-const handleAddOrUpdateBook = (values: any) => {
+const handleAddOrUpdateBook = async (values: any) => {
   try {
     console.log('values', values);
 
-    // Lấy originFileObj từ fileList
-    const imageFiles = values.images?.map((file: any) => file.originFileObj).filter(Boolean) || [];
+   const imageFiles =
+  values.newImages?.map((file: any) => file.originFileObj).filter(Boolean) || [];
 
-    const data: BookModelRequest = {
-      name: values.name,
-      author: values.author,
-      price: values.price,
-      categoryId: values.category,
-      description: values.description,
-      images: imageFiles,
-      totalAmount: values.totalAmount,
-      status: values.status,
-    };
+const data: BookModelRequest = {
+  name: values.name,
+  author: values.author,
+  price: values.price,
+  categoryId: values.category,
+  description: values.description,
+  images: imageFiles,
+  totalAmount: values.totalAmount,
+  status: values.status,
+};
+
+const dataUpdate: BookModelUpdate = {
+  id: editingBook?.id,
+  name: values.name,
+  author: values.author,
+  price: values.price,
+  categoryId: values.category,
+  description: values.description,
+  newImages: imageFiles,
+  images: values.images?.map((file: any) => file.url) || [], // giữ lại ảnh cũ dạng URL
+  totalAmount: values.totalAmount,
+  status: values.status,
+};
+
+
+    let response: { data: BookModel };
 
     if (editingBook) {
-      bookRepo.update(editingBook.id, data);
+      response = await bookRepo.update(editingBook.id, dataUpdate);
+      if (response.data) {
       message.success('Cập nhật sách thành công!');
+      setIsBookModalVisible(false);}
+      else{
+        message.error('Cập nhật sách thất bại, vui lòng thử lại!');
+      }
+      
     } else {
-      bookRepo.create(data);
+      response = await bookRepo.create(data);
+      if (!response.data) {
+        message.error('Thêm sách thất bại, vui lòng thử lại!');
+        return;
+      }else {
       message.success('Thêm sách thành công!');
+      setBook((prevBooks) => [...prevBooks, response.data]);
+      setIsBookModalVisible(false);}
     }
 
     fetchBook(currentPage, pageSize);
@@ -103,6 +131,7 @@ const handleAddOrUpdateBook = (values: any) => {
     message.error('Không thể thêm hoặc cập nhật sách!');
   }
 };
+
 
 
   const handleDeleteBook = async(id: string) => {

@@ -5,7 +5,7 @@ import { ApiPath } from "@/api/ApiPath";
 
 interface ICartRepo {
     addToCart(data: CartRequest): Promise<BaseApiResponseModel<CartResponse>>;
-    updateCartItem(id: string, data: CartRequest): Promise<BaseApiResponseModel<any>>;
+    updateCartItem(id: string, quantity: number): Promise<BaseApiResponseModel<any>>;
     removeFromCart(id: string): Promise<BaseApiResponseModel<any>>;
     getCartItems(): Promise<BaseApiResponseModel<CartModel[]>>;
     }
@@ -15,8 +15,8 @@ export class CartRepo implements ICartRepo {
         return client.post(ApiPath.CART_ADD, data);
     }
 
-    async updateCartItem(id: string, data: CartRequest): Promise<BaseApiResponseModel<any>> {
-        return client.put(ApiPath.CART_UPDATE + id, data);
+    async updateCartItem(id: string, quantity: number): Promise<BaseApiResponseModel<any>> {
+        return client.put(ApiPath.CART_UPDATE + id, { quantity });
     }
 
     async removeFromCart(id: string): Promise<BaseApiResponseModel<any>> {

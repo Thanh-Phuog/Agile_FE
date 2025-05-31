@@ -28,6 +28,11 @@ export const ApiPath = {
   CART_GET: getApiPath("cart"),
   CART_DELETE: getApiPath("cart/"),
   CART_UPDATE: getApiPath("cart/"),
+
+  // User
+  CREATE_USER: getApiPath("user/create"),
+  GET_USER: getApiPath("user/list"),
+  UPDATE_USER: getApiPath("user/update/"),
 };
 
 function getApiPath(path: string) {

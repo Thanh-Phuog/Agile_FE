@@ -22,3 +22,16 @@ export interface BookModelRequest {
   totalAmount: number;
   status: boolean;
 }  
+
+export interface BookModelUpdate {
+  id?: string;
+  name?: string;
+  author?: string;
+  price?: number;
+  newImages?: string[];
+  images?: string[];
+  description?: string;
+  categoryId?: string;
+  totalAmount?: number;
+  status?: boolean;
+}  

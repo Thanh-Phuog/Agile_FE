@@ -91,7 +91,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         ]
       : []),
 
-    ...(user && user.role === "user"
+    ...(user 
       ? [{ label: `Đơn hàng của tôi`, link: "/bill" }]
       : []),
 
